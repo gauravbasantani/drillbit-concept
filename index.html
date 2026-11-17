@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Drillbit Concept · Gaurav Basantani</title>
+<meta name="description" content="Check one line before Mason's quote goes out: a made-up painter reviews a quote Drillbit's AI drafted from a noisy call, where one room size was heard as fifty instead of fifteen. An unofficial concept by Gaurav Basantani.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* One screen, one decision: the owner of a made-up painting company opens a "Quote review" task
+   (a task type Drillbit's own dashboard shows). Mason drafted the quote from a phone call; on a noisy
+   stretch it heard one bedroom as "fifty by twelve". The homeowner had said both bedrooms are the same
+   size, and bedroom 1 is 15 x 12. Mason did what a careful employee does: it flags the line instead of
+   guessing. The owner fixes it with one tap, or sends as drafted with a reason. */
+:root{
+  --bg:#eae7e6; --page-ink:#1b1a19; --page-muted:#6f6a68; --ok:#1f7a3f; --bad:#b42318;
+  --w-bg:#ffffff; --w-2:#f7f6f5; --w-line:#e8e5e3; --w-ink:#1b1a19; --w-muted:#6f6a68; --w-dim:#9a9592;
+  --orange:#f35725; --orange-soft:#fff1eb; --orange-line:#f6b79f;
+  --btn:#2f2f2e; --btn-ink:#ffffff;
+  --chip-bg:#f1f0ef; --chip-line:#dcd8d6;
+  --hl:#ffe2d6;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121110; --page-ink:#f1efed; --page-muted:#a8a29f; --ok:#6fd394; --bad:#ff8a80;
+  --w-bg:#1b1a19; --w-2:#232120; --w-line:#33302e; --w-ink:#f1efed; --w-muted:#b0aaa7; --w-dim:#8d8784;
+  --orange:#ff7a4d; --orange-soft:#2e1d16; --orange-line:#6b3523;
+  --btn:#f1efed; --btn-ink:#1b1a19;
+  --chip-bg:#262423; --chip-line:#3d3a38; --hl:#5a2a18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121110; --page-ink:#f1efed; --page-muted:#a8a29f; --ok:#6fd394; --bad:#ff8a80;
+  --w-bg:#1b1a19; --w-2:#232120; --w-line:#33302e; --w-ink:#f1efed; --w-muted:#b0aaa7; --w-dim:#8d8784;
+  --orange:#ff7a4d; --orange-soft:#2e1d16; --orange-line:#6b3523;
+  --btn:#f1efed; --btn-ink:#1b1a19;
+  --chip-bg:#262423; --chip-line:#3d3a38; --hl:#5a2a18; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--page-ink);font:15px/1.45 var(--sans);padding:18px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+p,h1,h2,h3{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+.page{max-width:1080px;margin:0 auto;display:grid;gap:14px}
+.head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:8px 40px;align-items:end}
+.eyebrow{font:500 .74rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--page-muted);margin-bottom:6px}
+h1{font:600 clamp(1.4rem,3vw,2rem)/1.12 var(--sans);letter-spacing:-.02em}
+.now{border-left:3px solid var(--page-muted);padding:2px 0 2px 12px;min-height:40px;display:flex;align-items:center}
+.now.bad{border-color:var(--bad)} .now.ok{border-color:var(--ok)}
+.now p{font-size:.95rem}
+.now.bad p{color:var(--bad)} .now.ok p{color:var(--ok)}
+.now b{font-weight:600}
+/* the app window, styled after Drillbit's public dashboard */
+.window{background:var(--w-bg);color:var(--w-ink);border:1px solid var(--w-line);border-radius:12px;overflow:hidden;display:grid;grid-template-columns:190px minmax(0,1fr)}
+.side{border-right:1px solid var(--w-line);padding:12px 10px;display:grid;align-content:start;gap:2px;cursor:default;background:var(--w-2)}
+.biz{display:flex;align-items:center;gap:9px;padding:2px 4px 12px}
+.logo{width:30px;height:30px;border-radius:7px;background:var(--w-ink);color:var(--w-bg);display:grid;place-items:center;font:600 .7rem var(--sans);flex:none}
+.biz b{display:block;font-weight:600;font-size:.86rem;line-height:1.2}
+.biz .who{display:block;font-size:.74rem;color:var(--w-muted)}
+.nav{font-size:.86rem;padding:6px 8px;border-radius:6px;color:var(--w-muted)}
+.nav.on{background:var(--w-bg);color:var(--w-ink);font-weight:500;box-shadow:0 0 0 1px var(--w-line)}
+.main{min-width:0;display:grid;align-content:start}
+.top{display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--w-line);cursor:default;min-width:0}
+.top .biz{display:none;padding:0}
+.crumb{font:400 .74rem var(--mono);color:var(--w-muted);white-space:nowrap}
+.task{padding:14px 20px 4px;cursor:default}
+.task h2{font:600 1.2rem/1.25 var(--sans);letter-spacing:-.01em}
+.task p{font-size:.84rem;color:var(--w-muted);margin-top:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:16px;padding:12px 20px 16px;align-items:start}
+/* quote */
+.quote{border:1px solid var(--w-line);border-radius:10px;overflow:hidden;cursor:default}
+.qh{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--w-2);border-bottom:1px solid var(--w-line);font-size:.8rem;color:var(--w-muted)}
+.qh b{color:var(--w-ink);font-weight:500}
+.ql{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:4px 14px;padding:10px 12px;border-bottom:1px solid var(--w-line);font-size:.88rem;align-items:baseline}
+.ql .n{font-weight:500}
+.ql .n small{display:block;font-weight:400;color:var(--w-muted);font-size:.78rem}
+.ql .a{font:400 .78rem var(--mono);color:var(--w-muted);white-space:nowrap}
+.ql .p{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500}
+.ql.flag{background:var(--orange-soft);box-shadow:inset 3px 0 0 var(--orange)}
+.qt{display:flex;justify-content:space-between;padding:10px 12px;font-weight:600}
+.qt span:last-child{font-variant-numeric:tabular-nums}
+/* Mason's check */
+.check.closed{border-color:var(--chip-line)}
+.check{border:1px solid var(--orange-line);background:var(--w-bg);border-radius:10px;padding:12px;display:grid;gap:10px;min-width:0}
+.ck{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.92rem;cursor:default}
+.hex{width:14px;height:14px;background:var(--orange);clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%);flex:none}
+.ln{display:flex;justify-content:space-between;gap:10px;font-size:.9rem;padding:7px 9px;border-radius:7px;background:var(--orange-soft);cursor:default}
+.ln b{font-weight:600}
+.ev{display:grid;gap:5px;cursor:default}
+.e{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px;font-size:.86rem;line-height:1.4}
+.e em{font:400 .72rem var(--mono);font-style:normal;color:var(--w-muted);padding-top:2px}
+mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 3px}
+.tag{display:inline-block;font:500 .68rem var(--mono);color:var(--w-muted);border:1px solid var(--chip-line);border-radius:4px;padding:0 5px;margin-left:4px;white-space:nowrap}
+.why{font-size:.84rem;color:var(--w-muted);border-top:1px solid var(--w-line);padding-top:9px;cursor:default}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.b1{background:var(--btn);color:var(--btn-ink);border:0;border-radius:8px;padding:9px 14px;font-weight:500;font-size:.9rem}
+.b2{background:var(--w-bg);border:1px solid var(--chip-line);border-radius:8px;padding:8px 13px;font-size:.88rem}
+.b1:disabled{opacity:.45;cursor:not-allowed}
+.b1:focus-visible,.b2:focus-visible,.wf button:focus-visible,textarea:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.reason{display:grid;gap:7px}
+.reason label{font-size:.86rem;font-weight:500}
+.reason small{font-size:.76rem;color:var(--w-muted)}
+textarea{font:inherit;font-size:.88rem;color:var(--w-ink);background:var(--w-bg);border:1px solid var(--chip-line);border-radius:8px;padding:8px 10px;min-height:62px;resize:vertical;width:100%}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;background:var(--chip-bg);border:1px solid var(--chip-line);border-radius:999px;padding:3px 10px;width:max-content;max-width:100%}
+.done{display:grid;gap:7px;font-size:.86rem;cursor:default}
+.done q{color:var(--w-muted)}
+.wf{display:flex;align-items:center;gap:8px;padding:9px 20px;border-top:1px solid var(--w-line);font-size:.76rem;color:var(--w-muted);grid-column:1/-1}
+.wf span{margin-right:auto}
+.wf button{white-space:nowrap;background:none;border:1px solid var(--chip-line);border-radius:6px;padding:3px 10px;font-size:.78rem;color:var(--w-ink)}
+.wf button:disabled{opacity:.4;cursor:default}
+.foot{font-size:.78rem;color:var(--page-muted);display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:space-between}
+.foot a{color:inherit}
+@media(max-width:860px){
+  body{padding-top:14px}
+  .head{grid-template-columns:1fr;gap:8px}
+  .window{grid-template-columns:1fr}
+  .side{display:none}
+  .top{padding:9px 12px;justify-content:space-between}
+  .top .biz{display:flex}
+  .logo{width:26px;height:26px}
+  .task{padding:10px 12px 2px}
+  .task h2{font-size:1.05rem}
+  .grid{grid-template-columns:1fr;padding:8px 12px 12px;gap:12px}
+  .check{order:-1;padding:10px;gap:8px}
+  .qh{flex-direction:column;gap:0}
+  .ql{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n p" "a a"}
+  .ql .n{grid-area:n} .ql .p{grid-area:p} .ql .a{grid-area:a}
+  .wf{padding:8px 12px}
+}
+@media(max-width:380px){h1{font-size:1.3rem}.e{grid-template-columns:84px minmax(0,1fr);gap:6px}.e em{white-space:nowrap}.b1{padding:9px 11px}}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="head">
+    <div>
+      <p class="eyebrow">Design concept for Drillbit · unofficial</p>
+      <h1>Check one line before Mason’s quote goes out</h1>
+    </div>
+    <div class="now" id="now" aria-live="polite"></div>
+  </header>
+
+  <section class="window" aria-label="Concept screen in the style of the Drillbit dashboard: a quote review task">
+    <nav class="side" aria-hidden="true">
+      <div class="biz"><span class="logo">LP</span><span><b>Lark Painting</b><span class="who">Marcus Reyes</span></span></div>
+      <span class="nav">Home</span><span class="nav">Jobs</span><span class="nav">Customers</span><span class="nav">Employees</span><span class="nav">Messages</span><span class="nav on">Tasks</span>
+    </nav>
+    <div class="main">
+      <div class="top"><span class="biz"><span class="logo">LP</span><span><b>Lark Painting</b><span class="who">Marcus Reyes</span></span></span><span class="crumb">Tasks › Quote review</span></div>
+      <div class="task"><h2>Quote for Dana Whitfield</h2><p id="tasksub">Mason drafted it from Dana’s call this morning. Not sent yet.</p></div>
+      <div class="grid">
+        <div class="quote" id="quote"></div>
+        <div class="check" id="check"></div>
+      </div>
+    </div>
+    <div class="wf"><span>Made-up business, homeowner and call</span><button type="button" id="undo">Undo</button><button type="button" id="reset">Start over</button></div>
+  </section>
+
+  <footer class="foot"><span>By Gaurav Basantani · <a href="https://gauravbasantani.com">gauravbasantani.com</a> · <a href="walkthrough.mp4">35-second walkthrough</a></span><span>Not affiliated with Drillbit</span></footer>
+</main>
+
+<script>
+(function(){
+  var RATE = 3; // dollars per sq ft of floor, walls only (the owner's price list)
+  var ROOM1 = [15,12];
+  var HEARD = [50,12];
+  function money(n){return "$"+n.toLocaleString("en-US");}
+  function area(r){return r[0]*r[1];}
+  var S0 = {step:"open", reason:""};
+  var s = JSON.parse(JSON.stringify(S0)), hist = [];
+  var $ = function(id){return document.getElementById(id);};
+  function esc(t){return t.replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  function room2(){return s.step==="fixed" ? ROOM1 : HEARD;}
+  function total(){return (area(ROOM1)+area(room2()))*RATE;}
+  function go(next){hist.push(JSON.parse(JSON.stringify(s))); s=next; render();}
+
+  function quoteHTML(){
+    var r2 = room2(), flag = s.step!=="fixed";
+    return '<div class="qh"><span><b>'+(s.step==="sent"||s.step==="fixed"?"Quote":"Draft quote")+'</b> · walls only, 2 coats</span><span>'+money(RATE)+'.00 per sq ft of floor</span></div>'+
+      '<div class="ql"><span class="n">Bedroom 1<small>8 ft ceilings</small></span><span class="a">'+ROOM1[0]+'\u00a0×\u00a0'+ROOM1[1]+' ft = '+area(ROOM1)+' sq ft</span><span class="p">'+money(area(ROOM1)*RATE)+'</span></div>'+
+      '<div class="ql'+(flag?' flag':'')+'"><span class="n">Bedroom 2<small>'+(s.step==="fixed"?'Changed by Marcus from '+HEARD[0]+'\u00a0×\u00a0'+HEARD[1]:'8 ft ceilings')+'</small></span><span class="a">'+r2[0]+'\u00a0×\u00a0'+r2[1]+' ft = '+area(r2)+' sq ft</span><span class="p">'+money(area(r2)*RATE)+'</span></div>'+
+      '<div class="qt"><span>Total</span><span>'+money(total())+'</span></div>';
+  }
+  function evidence(){
+    return '<div class="ev">'+
+      '<div class="e"><em>0:58 · Dana</em><span>“Both bedrooms are about the same size.”</span></div>'+
+      '<div class="e"><em>1:42 · Dana</em><span>“The second one’s <mark>fifty</mark> by twelve.”<span class="tag">noisy audio</span></span></div>'+
+      '<div class="e"><em>Bedroom 1</em><span>'+ROOM1[0]+'\u00a0×\u00a0'+ROOM1[1]+' ft on this quote</span></div>'+
+      '</div>';
+  }
+  function checkHTML(){
+    var head = '<p class="ck"><span class="hex" aria-hidden="true"></span><span>Mason isn’t sure about Bedroom 2: '+HEARD[0]+'\u00a0×\u00a0'+HEARD[1]+'\u00a0ft</span></p>';
+    var why = '<p class="why">Your rate is right and no site visit is booked, so nothing else checks this size before Dana sees '+money((area(ROOM1)+area(HEARD))*RATE)+'.</p>';
+    if(s.step==="open"){
+      return head+evidence()+why+
+        '<div class="acts"><button type="button" class="b1" id="fix">Change to '+ROOM1[0]+'\u00a0×\u00a0'+ROOM1[1]+' and send '+money(area(ROOM1)*2*RATE)+'</button>'+
+        '<button type="button" class="b2" id="asis">Send as drafted</button></div>';
+    }
+    if(s.step==="reason"){
+      return head+evidence()+
+        '<div class="reason"><label for="why">Why is '+HEARD[0]+'\u00a0×\u00a0'+HEARD[1]+' right?</label>'+
+        '<textarea id="why">'+esc(s.reason)+'</textarea>'+
+        '<small>Mason keeps your answer for the next quote.</small>'+
+        '<div class="acts"><button type="button" class="b1" id="send" disabled>Send '+money((area(ROOM1)+area(HEARD))*RATE)+'</button><button type="button" class="b2" id="cancel">Cancel</button></div></div>';
+    }
+    if(s.step==="sent"){
+      return head+evidence()+
+        '<div class="done"><span class="chip">Sent as drafted · '+money((area(ROOM1)+area(HEARD))*RATE)+' · Marcus</span><q>'+esc(s.reason)+'</q></div>';
+    }
+    // fixed
+    return '<div class="done"><span class="chip">Sent to Dana · '+money(total())+' · Marcus</span>'+
+      '<span>Bedroom 2 is now '+ROOM1[0]+'\u00a0×\u00a0'+ROOM1[1]+', the same size as Bedroom 1, as Dana said.</span></div>';
+  }
+  function nowHTML(){
+    if(s.step==="sent") return ['bad','<b>Wrong:</b> Dana said both rooms match. Her quote is '+money(area(HEARD)*RATE-area(ROOM1)*RATE)+' too high.'];
+    if(s.step==="fixed") return ['ok','<b>Fixed:</b> Dana gets '+money(total())+', two rooms the same size.'];
+    return ['','One size was heard on a noisy call. Check it before Dana sees it.'];
+  }
+  function render(){
+    $("quote").innerHTML = quoteHTML();
+    $("check").innerHTML = checkHTML();
+    $("check").className = "check"+(s.step==="fixed"?" closed":"");
+    $("tasksub").textContent = (s.step==="sent"||s.step==="fixed") ? "Mason drafted it from Dana’s call this morning. Sent." : "Mason drafted it from Dana’s call this morning. Not sent yet.";
+    var n = nowHTML(); $("now").className = "now "+n[0]; $("now").innerHTML = '<p>'+n[1]+'</p>';
+    $("undo").disabled = hist.length===0;
+    var b;
+    if((b=$("fix"))) b.onclick=function(){go({step:"fixed",reason:""});};
+    if((b=$("asis"))) b.onclick=function(){go({step:"reason",reason:""});};
+    if((b=$("cancel"))) b.onclick=function(){go({step:"open",reason:""});};
+    var t=$("why");
+    if(t){
+      var send=$("send");
+      var upd=function(){s.reason=t.value; send.disabled=t.value.trim().length<10;};
+      t.oninput=upd; upd();
+      send.onclick=function(){if(t.value.trim().length>=10) go({step:"sent",reason:t.value.trim()});};
+    }
+  }
+  $("undo").onclick=function(){if(hist.length){s=hist.pop(); render();}};
+  $("reset").onclick=function(){hist=[]; s=JSON.parse(JSON.stringify(S0)); render();};
+  render();
+})();
+</script>
+</body>
+</html>
