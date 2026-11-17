@@ -190,7 +190,7 @@ textarea{font:inherit;font-size:.88rem;color:var(--w-ink);background:var(--w-bg)
   }
   function checkHTML(){
     var head = '<p class="ck"><span class="hex" aria-hidden="true"></span><span>Mason isn’t sure about Bedroom 2: '+HEARD[0]+'\u00a0×\u00a0'+HEARD[1]+'\u00a0ft</span></p>';
-    var why = '<p class="why">Your rate is right and no site visit is booked, so nothing else checks this size before Dana sees '+money((area(ROOM1)+area(HEARD))*RATE)+'.</p>';
+    var why = '<p class="why">No site visit is booked, so nothing else catches this before Dana sees '+money((area(ROOM1)+area(HEARD))*RATE)+'.</p>';
     if(s.step==="open"){
       return head+evidence()+why+
         '<div class="acts"><button type="button" class="b1" id="fix">Change to '+ROOM1[0]+'\u00a0×\u00a0'+ROOM1[1]+' and send '+money(area(ROOM1)*2*RATE)+'</button>'+
